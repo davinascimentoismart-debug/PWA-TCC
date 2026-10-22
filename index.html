@@ -1,955 +1,329 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tranca IoT</title>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#111827">
+  <meta name="mobile-web-app-capable" content="yes">
 
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Tranca IoT</title>
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#111827">
-<meta name="mobile-web-app-capable" content="yes">
-
-<style>
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f6f8;
-    color: #17202a;
-}
-
-header {
-    background: #111827;
-    color: white;
-    padding: 28px 20px;
-    text-align: center;
-}
-
-header h1 {
-    font-size: 30px;
-    margin-bottom: 6px;
-}
-
-header p {
-    opacity: .8;
-}
-
-.container {
-    max-width: 1100px;
-    margin: 30px auto;
-    padding: 0 20px;
-}
-
-.card {
-    background: white;
-    border-radius: 16px;
-    padding: 28px;
-    box-shadow: 0 4px 18px #00000012;
-    margin-bottom: 22px;
-}
-
-.main {
-    text-align: center;
-}
-
-.badge {
-    display: inline-block;
-    background: #e8f7ee;
-    color: #16803c;
-    padding: 8px 14px;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 13px;
-    margin-bottom: 20px;
-}
-
-.lock {
-    font-size: 70px;
-    margin: 10px 0;
-}
-
-.status-title {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 8px;
-}
-
-.status-subtitle {
-    color: #667085;
-    margin-bottom: 24px;
-}
-
-button {
-    border: 0;
-    border-radius: 10px;
-    padding: 13px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-#btnAbrir {
-    background: #111827;
-    color: white;
-}
-
-#btnAbrir:hover {
-    opacity: .9;
-}
-
-#btnAbrir:disabled {
-    opacity: .6;
-    cursor: not-allowed;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-}
-
-.info {
-    padding: 22px;
-}
-
-.label {
-    font-size: 13px;
-    color: #667085;
-    margin-bottom: 8px;
-}
-
-.value {
-    font-size: 20px;
-    font-weight: bold;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
-    gap: 12px;
-    align-items: end;
-}
-
-input,
-select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #d0d5dd;
-    border-radius: 9px;
-    font-size: 15px;
-}
-
-.form-group label {
-    display: block;
-    font-size: 13px;
-    margin-bottom: 6px;
-    font-weight: bold;
-}
-
-#btnSalvar {
-    background: #111827;
-    color: white;
-}
-
-.actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 18px;
-}
-
-.actions button {
-    background: #eef1f5;
-    color: #111827;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-th,
-td {
-    text-align: left;
-    padding: 13px;
-    border-bottom: 1px solid #eaecf0;
-}
-
-th {
-    font-size: 13px;
-    color: #667085;
-}
-
-.online {
-    color: #16803c;
-}
-
-.offline {
-    color: #c62828;
-}
-
-.open {
-    color: #16803c;
-}
-
-.closed {
-    color: #c62828;
-}
-
-footer {
-    text-align: center;
-    color: #667085;
-    padding: 20px;
-}
-
-@media (max-width: 750px) {
-
-    .grid {
-        grid-template-columns: 1fr;
+  <style>
+    /* Configurações gerais */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f4f6f8; color: #17202a; }
+    header { background: #111827; color: white; padding: 28px 20px; text-align: center; }
+    header h1 { font-size: 30px; margin-bottom: 6px; }
+    header p { opacity: .8; }
+    .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+    .card { background: white; border-radius: 16px; padding: 28px; box-shadow: 0 4px 18px #00000012; margin-bottom: 22px; }
+    .main { text-align: center; }
+    .badge { display: inline-block; background: #e8f7ee; color: #16803c; padding: 8px 14px; border-radius: 20px; font-weight: bold; font-size: 13px; margin-bottom: 20px; }
+    .lock { font-size: 70px; margin: 10px 0; }
+    .status-title { font-size: 28px; font-weight: bold; margin-bottom: 8px; }
+    .status-subtitle { color: #667085; margin-bottom: 24px; }
+    button { border: 0; border-radius: 10px; padding: 13px 20px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    .botoes-tranca { display: flex; justify-content: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+    #btnAbrir, #btnFechar { flex: 1; min-width: 180px; max-width: 260px; color: white; transition: opacity .2s, transform .2s; }
+    #btnAbrir { background: #111827; }
+    #btnFechar { background: #dc2626; }
+    #btnAbrir:hover, #btnFechar:hover { opacity: .88; transform: translateY(-1px); }
+    #btnAbrir:disabled, #btnFechar:disabled { transform: none; }
+    /* Cartões e informações de status */
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    .info { padding: 22px; margin-bottom: 22px; }
+    .label { font-size: 13px; color: #667085; margin-bottom: 8px; }
+    .value { font-size: 20px; font-weight: bold; }
+    /* Formulário e histórico */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
+    input, select { width: 100%; padding: 12px; border: 1px solid #d0d5dd; border-radius: 9px; font-size: 15px; }
+    .form-group label { display: block; font-size: 13px; margin-bottom: 6px; font-weight: bold; }
+    #btnSalvar { background: #111827; color: white; }
+    .actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+    .actions button { background: #eef1f5; color: #111827; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { text-align: left; padding: 13px; border-bottom: 1px solid #eaecf0; }
+    th { font-size: 13px; color: #667085; }
+    .online, .open { color: #16803c; }
+    .offline, .closed { color: #c62828; }
+    footer { text-align: center; color: #667085; padding: 20px; }
+    /* Ajustes para telas menores */
+    @media (max-width: 750px) {
+      .grid { grid-template-columns: 1fr; gap: 0; }
+      .form-grid { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+      .actions button { width: 100%; }
     }
-
-    .form-grid {
-        grid-template-columns: 1fr;
+    @media (max-width: 480px) {
+      .botoes-tranca { flex-direction: column; }
+      #btnAbrir, #btnFechar { width: 100%; max-width: none; }
+      .card { padding: 22px; }
+      .status-title { font-size: 24px; }
     }
-
-    .actions {
-        flex-direction: column;
-    }
-
-}
-
-</style>
-
+  </style>
 </head>
-<script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js")
-        .then((registration) => {
-          console.log("PWA registrada:", registration.scope);
-        })
-        .catch((error) => {
-          console.error("Erro ao registrar PWA:", error);
-        });
-    });
-  }
-</script>
 <body>
-
-<header>
-
-<h1>🔒 Tranca IoT</h1>
-
-<p>Sistema de controle e monitoramento</p>
-
-</header>
-
-<main class="container">
-
-<section class="card main">
-
-<div class="badge" id="deviceBadge">
-● DISPOSITIVO ATIVO
-</div>
-
-<div class="lock" id="lockIcon">
-🔒
-</div>
-
-<div class="status-title" id="lockStatus">
-Tranca fechada
-</div>
-
-<div class="status-subtitle" id="lockSubtitle">
-Sistema de segurança ativo
-</div>
-
-<button id="btnAbrir">
-🔓 Abrir tranca
-</button>
-
-</section>
-
-<section class="grid">
-
-<div class="card info">
-
-<div class="label">
-</div>
-
-</section>
-
-<section class="grid">
-
-<div class="card info">
-
-<div class="label">
-Status da tranca
-</div>
-Status da tranca
-</div>
-
-<div class="value closed" id="statusTranca">
-Aberta
-</div>
-
-</div>
-
-<div class="card info">
-
-<div class="label">
-Conexão
-</div>
-
-<div class="value online" id="statusConexao">
-Online
-</div>
-
-</div>
-
-<div class="card info">
-
-<div class="label">
-Dispositivo
-</div>
-
-<div class="value">
-ESP32
-</div>
-
-</div>
-
-</section>
-
-<section class="card">
-
-<h2>
-Histórico de acesso
-</h2>
-
-<form id="formHistorico">
-
-<div class="form-grid">
-
-<div class="form-group">
-
-<label for="data">
-Data
-</label>
-
-<input
-    id="data"
-    placeholder="DD/MM/AA"
-    maxlength="8"
-    required
->
-
-</div>
-
-<div class="form-group">
-
-<label for="horario">
-Horário
-</label>
-
-<input
-    id="horario"
-    placeholder="HH:MM"
-    maxlength="5"
-    required
->
-
-</div>
-
-<div class="form-group">
-
-<label for="acesso">
-Acesso
-</label>
-
-<select id="acesso">
-
-<option value="liberado">
-Liberado
-</option>
-
-<option value="negado">
-Negado
-</option>
-
-</select>
-
-</div>
-
-<button
-    id="btnSalvar"
-    type="submit"
->
-Salvar
-</button>
-
-</div>
-
-</form>
-
-<div class="actions">
-
-<button
-    id="btnVisualizar"
-    type="button"
->
-Visualizar histórico
-</button>
-
-<button
-    id="btnBaixar"
-    type="button"
->
-Baixar CSV
-</button>
-
-<button
-    id="btnLimpar"
-    type="button"
->
-Limpar histórico
-</button>
-
-</div>
-
-<div id="tabela"></div>
-
-</section>
-
-</main>
-
-<footer>
-
-Tranca IoT © 2026
-
-</footer>
-
-<script>
-
-const ESP32_URL = "http://172.26.221.92";
-
-const CHAVE = "entrada";
-
-let entrada = JSON.parse(
-    localStorage.getItem(CHAVE) || "[]"
-);
-
-const btnAbrir =
-    document.getElementById("btnAbrir");
-
-const lockIcon =
-    document.getElementById("lockIcon");
-
-const lockStatus =
-    document.getElementById("lockStatus");
-
-const lockSubtitle =
-    document.getElementById("lockSubtitle");
-
-const statusTranca =
-    document.getElementById("statusTranca");
-
-const statusConexao =
-    document.getElementById("statusConexao");
-
-const deviceBadge =
-    document.getElementById("deviceBadge");
-
-
-function salvarLocal() {
-
-    localStorage.setItem(
-        CHAVE,
-        JSON.stringify(entrada)
-    );
-
-}
-
-
-function dataAtual() {
-
-    const d = new Date();
-
-    const dia =
-        String(d.getDate()).padStart(2, "0");
-
-    const mes =
-        String(d.getMonth() + 1).padStart(2, "0");
-
-    const ano =
-        String(d.getFullYear()).slice(-2);
-
-    return `${dia}/${mes}/${ano}`;
-
-}
-
-
-function horaAtual() {
-
-    const d = new Date();
-
-    return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
-
-}
-
-
-function registrarAcesso(tipo) {
-
-    entrada.push({
-
-        Data: dataAtual(),
-
-        Horario: horaAtual(),
-
-        acesso: tipo
-
-    });
-
-    salvarLocal();
-
-    renderizar();
-
-}
-
-
-function renderizar() {
-
-    const tabela =
-        document.getElementById("tabela");
-
-    if (!entrada.length) {
-
-        tabela.innerHTML =
-            "<p style='margin-top:20px;color:#667085'>Nenhum registro encontrado.</p>";
-
-        return;
-
+  <header>
+    <h1>🔒 Tranca IoT</h1>
+    <p>Sistema de controle e monitoramento</p>
+  </header>
+
+  <main class="container">
+    <section class="card main">
+      <div class="badge" id="deviceBadge">● VERIFICANDO DISPOSITIVO</div>
+      <div class="lock" id="lockIcon">🔒</div>
+      <div class="status-title" id="lockStatus">Verificando tranca...</div>
+      <div class="status-subtitle" id="lockSubtitle">Aguardando resposta do ESP32</div>
+      <div class="botoes-tranca">
+        <button id="btnAbrir" type="button">🔓 Abrir tranca</button>
+        <button id="btnFechar" type="button">🔒 Fechar tranca</button>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card info">
+        <div class="label">Status da tranca</div>
+        <div class="value closed" id="statusTranca">Verificando...</div>
+      </div>
+      <div class="card info">
+        <div class="label">Conexão</div>
+        <div class="value offline" id="statusConexao">Verificando...</div>
+      </div>
+      <div class="card info">
+        <div class="label">Dispositivo</div>
+        <div class="value">ESP32</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Histórico de acesso</h2>
+      <form id="formHistorico">
+        <div class="form-grid" style="margin-top: 18px;">
+          <div class="form-group">
+            <label for="data">Data</label>
+            <input id="data" placeholder="DD/MM/AA" maxlength="8" required>
+          </div>
+          <div class="form-group">
+            <label for="horario">Horário</label>
+            <input id="horario" placeholder="HH:MM" maxlength="5" required>
+          </div>
+          <div class="form-group">
+            <label for="acesso">Acesso</label>
+            <select id="acesso">
+              <option value="liberado">Liberado</option>
+              <option value="negado">Negado</option>
+            </select>
+          </div>
+          <button id="btnSalvar" type="submit">Salvar</button>
+        </div>
+      </form>
+      <div class="actions">
+        <button id="btnVisualizar" type="button">Visualizar histórico</button>
+        <button id="btnBaixar" type="button">Baixar CSV</button>
+        <button id="btnLimpar" type="button">Limpar histórico</button>
+      </div>
+      <div id="tabela"></div>
+    </section>
+  </main>
+
+  <footer>Tranca IoT © 2026</footer>
+
+  <script>
+    // 1. Configuração e histórico salvo no navegador
+    // Confirme que este IP corresponde ao endereço atual do seu ESP32.
+    const ESP32_URL = "http://172.26.221.92";
+    const CHAVE = "entrada";
+    let entrada = [];
+    try {
+      const historicoSalvo = JSON.parse(localStorage.getItem(CHAVE) || "[]");
+      entrada = Array.isArray(historicoSalvo) ? historicoSalvo : [];
+    } catch (erro) {
+      entrada = [];
     }
 
-    let html = `
+    // 2. Elementos da interface
+    const btnAbrir = document.getElementById("btnAbrir");
+    const btnFechar = document.getElementById("btnFechar");
+    const lockIcon = document.getElementById("lockIcon");
+    const lockStatus = document.getElementById("lockStatus");
+    const lockSubtitle = document.getElementById("lockSubtitle");
+    const statusTranca = document.getElementById("statusTranca");
+    const statusConexao = document.getElementById("statusConexao");
+    const deviceBadge = document.getElementById("deviceBadge");
 
-    <table>
+    // 3. Funções do histórico
+    function salvarLocal() {
+      localStorage.setItem(CHAVE, JSON.stringify(entrada));
+    }
 
-        <thead>
+    function dataAtual() {
+      const d = new Date();
+      return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getFullYear()).slice(-2)}`;
+    }
 
-            <tr>
+    function horaAtual() {
+      const d = new Date();
+      return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+    }
 
-                <th>Data</th>
+    function registrarAcesso(tipo) {
+      entrada.push({ Data: dataAtual(), Horario: horaAtual(), acesso: tipo });
+      salvarLocal();
+      renderizar();
+    }
 
-                <th>Horário</th>
+    function renderizar() {
+      const tabela = document.getElementById("tabela");
+      if (!entrada.length) {
+        tabela.innerHTML = "<p style='margin-top:20px;color:#667085'>Nenhum registro encontrado.</p>";
+        return;
+      }
+      let html = "<table><thead><tr>" +
+        "<th>Data</th><th>Horário</th><th>Acesso</th>" +
+        "</tr></thead><tbody>";
+      [...entrada].reverse().forEach(item => {
+        html += `<tr><td>${item.Data}</td><td>${item.Horario}</td><td>${item.acesso === "liberado" ? "Liberado" : "Negado"}</td></tr>`;
+      });
+      tabela.innerHTML = html + "</tbody></table>";
+    }
 
-                <th>Acesso</th>
+    // 4. Consulta do estado atual da tranca e conexão com o ESP32
+    async function atualizarStatus() {
+      try {
+        const resposta = await fetch(`${ESP32_URL}/status`, {
+          method: "GET",
+          cache: "no-store"
+        });
+        if (!resposta.ok) throw new Error("ESP32 offline");
+        const dados = await resposta.json();
 
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-    `;
-
-    [...entrada].reverse().forEach(item => {
-
-        html += `
-
-        <tr>
-
-            <td>${item.Data}</td>
-
-            <td>${item.Horario}</td>
-
-            <td>
-                ${
-                    item.acesso === "liberado"
-                    ? "Liberado"
-                    : "Negado"
-                }
-            </td>
-
-        </tr>
-
-        `;
-
-    });
-
-    html += `
-        </tbody>
-    </table>
-    `;
-
-    tabela.innerHTML = html;
-
-}
-
-
-async function atualizarStatus() {
-
-    try {
-
-        const resposta =
-            await fetch(
-                `${ESP32_URL}/status`,
-                {
-                    method: "GET",
-                    cache: "no-store"
-                }
-            );
-
-        if (!resposta.ok) {
-
-            throw new Error(
-                "ESP32 offline"
-            );
-
-        }
-
-        const dados =
-            await resposta.json();
-
-        statusConexao.textContent =
-            "Online";
-
-        statusConexao.className =
-            "value online";
-
-        deviceBadge.textContent =
-            "● DISPOSITIVO ATIVO";
-
+        statusConexao.textContent = "Online";
+        statusConexao.className = "value online";
+        deviceBadge.textContent = "● DISPOSITIVO ATIVO";
 
         if (dados.locked) {
-
-            lockIcon.textContent =
-                "🔒";
-
-            lockStatus.textContent =
-                "Tranca fechada";
-
-            lockSubtitle.textContent =
-                "Sistema de segurança ativo";
-
-            statusTranca.textContent =
-                "Fechada";
-
-            statusTranca.className =
-                "value closed";
-
-            btnAbrir.textContent =
-                "🔓 Abrir tranca";
-
+          lockIcon.textContent = "🔒";
+          lockStatus.textContent = "Tranca fechada";
+          lockSubtitle.textContent = "Sistema de segurança ativo";
+          statusTranca.textContent = "Fechada";
+          statusTranca.className = "value closed";
+          btnAbrir.textContent = "🔓 Abrir tranca";
+          btnFechar.disabled = true;
+          btnAbrir.disabled = false;
+        } else {
+          lockIcon.textContent = "🔓";
+          lockStatus.textContent = "Tranca aberta";
+          lockSubtitle.textContent = "Acesso liberado";
+          statusTranca.textContent = "Aberta";
+          statusTranca.className = "value open";
+          btnAbrir.textContent = "🔓 Tranca aberta";
+          btnFechar.disabled = false;
+          btnAbrir.disabled = false;
         }
-
-        else {
-
-            lockIcon.textContent =
-                "🔓";
-
-            lockStatus.textContent =
-                "Tranca aberta";
-
-            lockSubtitle.textContent =
-                "Acesso liberado";
-
-            statusTranca.textContent =
-                "Aberta";
-
-            statusTranca.className =
-                "value open";
-
-            btnAbrir.textContent =
-                "🔒 Tranca aberta";
-
-        }
-
+      } catch (erro) {
+        statusConexao.textContent = "Offline";
+        statusConexao.className = "value offline";
+        deviceBadge.textContent = "● DISPOSITIVO OFFLINE";
+        lockSubtitle.textContent = "Não foi possível consultar o ESP32";
+        btnAbrir.disabled = false;
+        btnFechar.disabled = false;
+      }
     }
 
-    catch (erro) {
+    // 5. Comandos para abrir e fechar a tranca
+    async function enviarComando(acao, botao, textoCarregando) {
+      btnAbrir.disabled = true;
+      btnFechar.disabled = true;
+      const textoOriginal = botao.textContent;
+      botao.textContent = textoCarregando;
+      try {
+        const resposta = await fetch(`${ESP32_URL}/${acao}`, {
+          method: "GET",
+          cache: "no-store"
+        });
+        if (!resposta.ok) throw new Error(`Falha HTTP: ${resposta.status}`);
+        const dados = await resposta.json();
 
-        statusConexao.textContent =
-            "Offline";
-
-        statusConexao.className =
-            "value offline";
-
-        deviceBadge.textContent =
-            "● DISPOSITIVO OFFLINE";
-
+        if (dados.sucesso) {
+          registrarAcesso("liberado");
+        } else if (dados.estado !== (acao === "abrir" ? "aberta" : "fechada")) {
+          alert(dados.mensagem || `O ESP32 não confirmou o comando de ${acao}.`);
+        }
+        await atualizarStatus();
+      } catch (erro) {
+        console.error(`Erro ao ${acao} a tranca:`, erro);
+        alert(`Não foi possível ${acao} a tranca. Confira a conexão e se o ESP32 possui a rota /${acao}.`);
+      } finally {
+        botao.textContent = textoOriginal;
+        await atualizarStatus();
+      }
     }
 
-}
+    btnAbrir.addEventListener("click", () => enviarComando("abrir", btnAbrir, "⏳ Abrindo..."));
+    btnFechar.addEventListener("click", () => enviarComando("fechar", btnFechar, "⏳ Fechando..."));
 
+    // 6. Eventos do formulário e dos botões do histórico
+    document.getElementById("formHistorico").addEventListener("submit", event => {
+      event.preventDefault();
+      const data = document.getElementById("data").value.trim();
+      const horario = document.getElementById("horario").value.trim();
+      const acesso = document.getElementById("acesso").value;
+      if (!/^\d{2}\/\d{2}\/\d{2}$/.test(data)) {
+        alert("Digite a data no formato DD/MM/AA.");
+        return;
+      }
+      if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(horario)) {
+        alert("Digite o horário no formato HH:MM.");
+        return;
+      }
+      entrada.push({ Data: data, Horario: horario, acesso });
+      salvarLocal();
+      renderizar();
+      event.target.reset();
+    });
 
-btnAbrir.addEventListener(
-    "click",
-    async () => {
+    document.getElementById("btnVisualizar").addEventListener("click", renderizar);
+    document.getElementById("btnLimpar").addEventListener("click", () => {
+      if (confirm("Deseja realmente limpar o histórico?")) {
+        entrada = [];
+        salvarLocal();
+        renderizar();
+      }
+    });
 
-        btnAbrir.disabled = true;
+    document.getElementById("btnBaixar").addEventListener("click", () => {
+      if (!entrada.length) {
+        alert("Não há dados para baixar.");
+        return;
+      }
+      let csv = "Data,Horario,Acesso\n";
+      entrada.forEach(item => {
+        csv += `${item.Data},${item.Horario},${item.acesso}\n`;
+      });
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "historico_tranca.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    });
 
-        btnAbrir.textContent =
-            "⏳ Abrindo...";
+    // 7. Inicialização da página
+    renderizar();
+    atualizarStatus();
+    setInterval(atualizarStatus, 2000);
 
-        try {
-
-            const resposta =
-                await fetch(
-                    `${ESP32_URL}/abrir`,
-                    {
-                        method: "GET",
-                        cache: "no-store"
-                    }
-                );
-
-            const dados =
-                await resposta.json();
-
-
-            if (dados.sucesso) {
-
-                registrarAcesso(
-                    "liberado"
-                );
-
-            }
-
-            else if (
-                dados.estado === "aberta"
-            ) {
-
-                await atualizarStatus();
-
-            }
-
-            else {
-
-                registrarAcesso(
-                    "negado"
-                );
-
-            }
-
-            await atualizarStatus();
-
-        }
-
-        catch (erro) {
-
-            statusConexao.textContent =
-                "Offline";
-
-            statusConexao.className =
-                "value offline";
-
-            alert(
-                "Não foi possível conectar ao ESP32."
-            );
-
-        }
-
-        finally {
-
-            btnAbrir.disabled = false;
-
-            await atualizarStatus();
-
-        }
-
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js")
+          .then(registration => console.log("PWA registrada:", registration.scope))
+          .catch(error => console.error("Erro ao registrar PWA:", error));
+      });
     }
-);
-
-
-document
-    .getElementById("formHistorico")
-    .addEventListener(
-        "submit",
-        event => {
-
-            event.preventDefault();
-
-            const data =
-                document
-                .getElementById("data")
-                .value
-                .trim();
-
-            const horario =
-                document
-                .getElementById("horario")
-                .value
-                .trim();
-
-            const acesso =
-                document
-                .getElementById("acesso")
-                .value;
-
-
-            if (
-                !/^\d{2}\/\d{2}\/\d{2}$/.test(data)
-            ) {
-
-                alert(
-                    "Digite a data no formato DD/MM/AA."
-                );
-
-                return;
-
-            }
-
-
-            if (
-                !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(horario)
-            ) {
-
-                alert(
-                    "Digite o horário no formato HH:MM."
-                );
-
-                return;
-
-            }
-
-
-            entrada.push({
-
-                Data: data,
-
-                Horario: horario,
-
-                acesso: acesso
-
-            });
-
-
-            salvarLocal();
-
-            renderizar();
-
-            event.target.reset();
-
-        }
-    );
-
-
-document
-    .getElementById("btnVisualizar")
-    .addEventListener(
-        "click",
-        renderizar
-    );
-
-
-document
-    .getElementById("btnLimpar")
-    .addEventListener(
-        "click",
-        () => {
-
-            if (
-                confirm(
-                    "Deseja realmente limpar o histórico?"
-                )
-            ) {
-
-                entrada = [];
-
-                salvarLocal();
-
-                renderizar();
-
-            }
-
-        }
-    );
-
-
-document
-    .getElementById("btnBaixar")
-    .addEventListener(
-        "click",
-        () => {
-
-            if (!entrada.length) {
-
-                alert(
-                    "Não há dados para baixar."
-                );
-
-                return;
-
-            }
-
-
-            let csv =
-                "Data,Horario,Acesso\n";
-
-
-            entrada.forEach(item => {
-
-                csv +=
-                    `${item.Data},${item.Horario},${item.acesso}\n`;
-
-            });
-
-
-            const blob =
-                new Blob(
-                    [csv],
-                    {
-                        type:
-                            "text/csv;charset=utf-8;"
-                    }
-                );
-
-
-            const url =
-                URL.createObjectURL(blob);
-
-
-            const link =
-                document.createElement("a");
-
-
-            link.href = url;
-
-            link.download =
-                "historico_tranca.csv";
-
-
-            document.body.appendChild(link);
-
-            link.click();
-
-            document.body.removeChild(link);
-
-            URL.revokeObjectURL(url);
-
-        }
-    );
-
-
-renderizar();
-
-atualizarStatus();
-
-setInterval(
-    atualizarStatus,
-    2000
-);
-
-</script>
-
+  </script>
 </body>
-
 </html>
