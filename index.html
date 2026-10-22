@@ -9,6 +9,7 @@
   <meta name="mobile-web-app-capable" content="yes">
 
   <style>
+    /* Configurações gerais */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; background: #f4f6f8; color: #17202a; }
     header { background: #111827; color: white; padding: 28px 20px; text-align: center; }
@@ -29,10 +30,12 @@
     #btnFechar { background: #dc2626; }
     #btnAbrir:hover, #btnFechar:hover { opacity: .88; transform: translateY(-1px); }
     #btnAbrir:disabled, #btnFechar:disabled { transform: none; }
+    /* Cartões e informações de status */
     .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
     .info { padding: 22px; margin-bottom: 22px; }
     .label { font-size: 13px; color: #667085; margin-bottom: 8px; }
     .value { font-size: 20px; font-weight: bold; }
+    /* Formulário e histórico */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
     input, select { width: 100%; padding: 12px; border: 1px solid #d0d5dd; border-radius: 9px; font-size: 15px; }
     .form-group label { display: block; font-size: 13px; margin-bottom: 6px; font-weight: bold; }
@@ -45,6 +48,7 @@
     .online, .open { color: #16803c; }
     .offline, .closed { color: #c62828; }
     footer { text-align: center; color: #667085; padding: 20px; }
+    /* Ajustes para telas menores */
     @media (max-width: 750px) {
       .grid { grid-template-columns: 1fr; gap: 0; }
       .form-grid { grid-template-columns: 1fr; }
@@ -126,6 +130,7 @@
   <footer>Tranca IoT © 2026</footer>
 
   <script>
+    // 1. Configuração e histórico salvo no navegador
     // Confirme que este IP corresponde ao endereço atual do seu ESP32.
     const ESP32_URL = "http://172.26.221.92";
     const CHAVE = "entrada";
@@ -137,6 +142,7 @@
       entrada = [];
     }
 
+    // 2. Elementos da interface
     const btnAbrir = document.getElementById("btnAbrir");
     const btnFechar = document.getElementById("btnFechar");
     const lockIcon = document.getElementById("lockIcon");
@@ -146,6 +152,7 @@
     const statusConexao = document.getElementById("statusConexao");
     const deviceBadge = document.getElementById("deviceBadge");
 
+    // 3. Funções do histórico
     function salvarLocal() {
       localStorage.setItem(CHAVE, JSON.stringify(entrada));
     }
@@ -172,16 +179,22 @@
         tabela.innerHTML = "<p style='margin-top:20px;color:#667085'>Nenhum registro encontrado.</p>";
         return;
       }
-      let html = "<table><thead><tr><th>Data</th><th>Horário</th><th>Acesso</th></tr></thead><tbody>";
+      let html = "<table><thead><tr>" +
+        "<th>Data</th><th>Horário</th><th>Acesso</th>" +
+        "</tr></thead><tbody>";
       [...entrada].reverse().forEach(item => {
         html += `<tr><td>${item.Data}</td><td>${item.Horario}</td><td>${item.acesso === "liberado" ? "Liberado" : "Negado"}</td></tr>`;
       });
       tabela.innerHTML = html + "</tbody></table>";
     }
 
+    // 4. Consulta do estado atual da tranca e conexão com o ESP32
     async function atualizarStatus() {
       try {
-        const resposta = await fetch(`${ESP32_URL}/status`, { method: "GET", cache: "no-store" });
+        const resposta = await fetch(`${ESP32_URL}/status`, {
+          method: "GET",
+          cache: "no-store"
+        });
         if (!resposta.ok) throw new Error("ESP32 offline");
         const dados = await resposta.json();
 
@@ -218,13 +231,17 @@
       }
     }
 
+    // 5. Comandos para abrir e fechar a tranca
     async function enviarComando(acao, botao, textoCarregando) {
       btnAbrir.disabled = true;
       btnFechar.disabled = true;
       const textoOriginal = botao.textContent;
       botao.textContent = textoCarregando;
       try {
-        const resposta = await fetch(`${ESP32_URL}/${acao}`, { method: "GET", cache: "no-store" });
+        const resposta = await fetch(`${ESP32_URL}/${acao}`, {
+          method: "GET",
+          cache: "no-store"
+        });
         if (!resposta.ok) throw new Error(`Falha HTTP: ${resposta.status}`);
         const dados = await resposta.json();
 
@@ -246,6 +263,7 @@
     btnAbrir.addEventListener("click", () => enviarComando("abrir", btnAbrir, "⏳ Abrindo..."));
     btnFechar.addEventListener("click", () => enviarComando("fechar", btnFechar, "⏳ Fechando..."));
 
+    // 6. Eventos do formulário e dos botões do histórico
     document.getElementById("formHistorico").addEventListener("submit", event => {
       event.preventDefault();
       const data = document.getElementById("data").value.trim();
@@ -280,7 +298,9 @@
         return;
       }
       let csv = "Data,Horario,Acesso\n";
-      entrada.forEach(item => { csv += `${item.Data},${item.Horario},${item.acesso}\n`; });
+      entrada.forEach(item => {
+        csv += `${item.Data},${item.Horario},${item.acesso}\n`;
+      });
       const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -292,6 +312,7 @@
       URL.revokeObjectURL(url);
     });
 
+    // 7. Inicialização da página
     renderizar();
     atualizarStatus();
     setInterval(atualizarStatus, 2000);
